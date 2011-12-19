@@ -29,9 +29,10 @@ class Cart:
         cart = models.Cart(creation_date=datetime.datetime.now())
         cart.save()
         request.session[CART_ID] = cart.id
+        # @@ send signal with cart id and request for further actions
         return cart
 
-    def add(self, product, unit_price, quantity=1):
+    def add(self, product, unit_price, attributes="", quantity=1):
         try:
             item = models.Item.objects.get(
                 cart=self.cart,
@@ -42,6 +43,7 @@ class Cart:
             item.cart = self.cart
             item.product = product
             item.unit_price = unit_price
+            item.attributes = attributes
             item.quantity = quantity
             item.save()
         else:
@@ -58,12 +60,15 @@ class Cart:
         else:
             item.delete()
 
-    def update(self, product, quantity, unit_price=None):
+    def update(self, product, quantity=1, unit_price=None, attributes=""):
         try:
             item = models.Item.objects.get(
                 cart=self.cart,
                 product=product,
             )
+            item.attributes = attributes
+            item.unit_price = unit_price
+            item.save()
         except models.Item.DoesNotExist:
             raise ItemDoesNotExist
 

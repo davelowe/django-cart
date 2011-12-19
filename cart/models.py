@@ -15,6 +15,11 @@ class Cart(models.Model):
     def __unicode__(self):
         return unicode(self.creation_date)
 
+    def total(self):
+        return sum(int(i.total_price) for i in self.item_set.all())
+    total = property(total)
+
+
 class ItemManager(models.Manager):
     def get(self, *args, **kwargs):
         if 'product' in kwargs:
@@ -27,6 +32,7 @@ class Item(models.Model):
     cart = models.ForeignKey(Cart, verbose_name=_('cart'))
     quantity = models.PositiveIntegerField(verbose_name=_('quantity'))
     unit_price = models.DecimalField(max_digits=18, decimal_places=2, verbose_name=_('unit price'))
+    attributes = models.CharField(max_length=100, blank=True, null=True)
     # product as generic relation
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
